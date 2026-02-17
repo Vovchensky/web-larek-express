@@ -1,8 +1,9 @@
 import { CronJob } from 'cron';
 import fs from 'fs';
 import path from 'path';
+import { UPLOAD_PATH_TEMP } from '../config';
 
-const tempDir = path.join(__dirname, '..', '..', 'public', 'temp');
+const tempDir = path.join(__dirname, '..', '..', 'public', UPLOAD_PATH_TEMP);
 const MAX_AGE = 60 * 60 * 1000;
 
 const cleanTemp = new CronJob('0 * * * *', () => {

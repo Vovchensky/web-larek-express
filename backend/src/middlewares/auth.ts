@@ -1,13 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AUTH_ACCESS_TOKEN_SECRET } from '../config';
 import UnauthorizedError from '../errors/unauthorized-error';
+import { AuthRequest } from '../types';
 
 interface JwtPayload {
   _id: string;
 }
 
-const authMiddleware = (req: Request, _res: Response, next: NextFunction) => {
+const authMiddleware = (req: AuthRequest, _res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -18,7 +19,7 @@ const authMiddleware = (req: Request, _res: Response, next: NextFunction) => {
 
   try {
     const payload = jwt.verify(token, AUTH_ACCESS_TOKEN_SECRET) as JwtPayload;
-    (req as any).user = payload;
+    req.user = payload;
     return next();
   } catch {
     return next(new UnauthorizedError('Необходима авторизация'));

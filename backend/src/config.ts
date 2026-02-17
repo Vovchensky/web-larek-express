@@ -5,6 +5,8 @@ const {
   AUTH_REFRESH_TOKEN_SECRET = 'refresh-secret-key',
   AUTH_ACCESS_TOKEN_EXPIRY = '10m',
   AUTH_REFRESH_TOKEN_EXPIRY = '7d',
+  UPLOAD_PATH = 'images',
+  UPLOAD_PATH_TEMP = 'temp',
 } = process.env;
 
 export {
@@ -14,4 +16,6 @@ export {
   AUTH_REFRESH_TOKEN_SECRET,
   AUTH_ACCESS_TOKEN_EXPIRY,
   AUTH_REFRESH_TOKEN_EXPIRY,
+  UPLOAD_PATH,
+  UPLOAD_PATH_TEMP,
 };

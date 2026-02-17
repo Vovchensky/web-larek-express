@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { UPLOAD_PATH_TEMP } from '../config';
 import BadRequestError from '../errors/bad-request-error';
 
 const uploadFile = (req: Request, res: Response, next: NextFunction) => {
@@ -8,7 +9,7 @@ const uploadFile = (req: Request, res: Response, next: NextFunction) => {
     }
 
     return res.json({
-      fileName: `/temp/${req.file.filename}`,
+      fileName: `/${UPLOAD_PATH_TEMP}/${req.file.filename}`,
       originalName: req.file.originalname,
     });
   } catch (err) {

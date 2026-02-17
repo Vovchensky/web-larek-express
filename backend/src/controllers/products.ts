@@ -5,6 +5,7 @@ import BadRequestError from '../errors/bad-request-error';
 import ConflictError from '../errors/conflict-error';
 import NotFoundError from '../errors/not-found-error';
 import { moveFile } from '../helpers/file-utils';
+import { UPLOAD_PATH_TEMP } from '../config';
 
 export const getProducts = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -19,7 +20,8 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
   try {
     const data = { ...req.body };
 
-    if (data.image && data.image.fileName && data.image.fileName.startsWith('/temp/')) {
+    if (data.image && data.image.fileName
+      && data.image.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
       data.image.fileName = moveFile(data.image.fileName);
     }
 
@@ -40,7 +42,8 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
   try {
     const data = { ...req.body };
 
-    if (data.image && data.image.fileName && data.image.fileName.startsWith('/temp/')) {
+    if (data.image && data.image.fileName
+      && data.image.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
       data.image.fileName = moveFile(data.image.fileName);
     }
 

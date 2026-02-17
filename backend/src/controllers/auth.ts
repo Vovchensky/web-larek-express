@@ -1,6 +1,4 @@
-import {
-  Request, Response, NextFunction, CookieOptions,
-} from 'express';
+import { Response, NextFunction, CookieOptions } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import ms from 'ms';
@@ -15,6 +13,7 @@ import BadRequestError from '../errors/bad-request-error';
 import NotFoundError from '../errors/not-found-error';
 import UnauthorizedError from '../errors/unauthorized-error';
 import ConflictError from '../errors/conflict-error';
+import { AuthRequest } from '../types';
 
 const COOKIE_NAME = 'refreshToken';
 
@@ -36,7 +35,7 @@ const generateTokens = (_id: string) => {
   return { accessToken, refreshToken };
 };
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
@@ -61,7 +60,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+password +tokens');
@@ -92,7 +91,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-export const refreshAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshAccessToken = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const { refreshToken: tokenFromCookie } = req.cookies;
 
@@ -102,7 +105,10 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
 
     let payload: { _id: string };
     try {
-      payload = jwt.verify(tokenFromCookie, AUTH_REFRESH_TOKEN_SECRET) as { _id: string };
+      payload = jwt.verify(
+        tokenFromCookie,
+        AUTH_REFRESH_TOKEN_SECRET,
+      ) as { _id: string };
     } catch {
       throw new UnauthorizedError('Невалидный или просроченный токен');
     }
@@ -137,7 +143,7 @@ export const refreshAccessToken = async (req: Request, res: Response, next: Next
   }
 };
 
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
+export const logout = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { refreshToken: tokenFromCookie } = req.cookies;
 
@@ -147,7 +153,10 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 
     let payload: { _id: string };
     try {
-      payload = jwt.verify(tokenFromCookie, AUTH_REFRESH_TOKEN_SECRET) as { _id: string };
+      payload = jwt.verify(
+        tokenFromCookie,
+        AUTH_REFRESH_TOKEN_SECRET,
+      ) as { _id: string };
     } catch {
       throw new UnauthorizedError('Невалидный токен');
     }
@@ -167,10 +176,14 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const { _id } = (req as any).user;
-    const user = await User.findById(_id);
+    const userId = req.user?._id;
+    const user = await User.findById(userId);
 
     if (!user) {
       throw new NotFoundError('Пользователь не найден');
