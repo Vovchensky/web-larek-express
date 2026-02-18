@@ -18,11 +18,19 @@ export const getProducts = async (_req: Request, res: Response, next: NextFuncti
 
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = { ...req.body };
+    const {
+      title, image, category, description, price,
+    } = req.body;
 
-    if (data.image && data.image.fileName
-      && data.image.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
-      data.image.fileName = moveFile(data.image.fileName);
+    const data: Record<string, unknown> = {
+      title, image, category, description, price,
+    };
+
+    if (data.image && typeof data.image === 'object') {
+      const img = data.image as { fileName?: string; originalName?: string };
+      if (img.fileName && img.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
+        img.fileName = moveFile(img.fileName);
+      }
     }
 
     const product = await Product.create(data);
@@ -40,11 +48,23 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = { ...req.body };
+    const {
+      title, image, category, description, price,
+    } = req.body;
 
-    if (data.image && data.image.fileName
-      && data.image.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
-      data.image.fileName = moveFile(data.image.fileName);
+    const data: Record<string, unknown> = {};
+
+    if (title !== undefined) data.title = title;
+    if (image !== undefined) data.image = image;
+    if (category !== undefined) data.category = category;
+    if (description !== undefined) data.description = description;
+    if (price !== undefined) data.price = price;
+
+    if (data.image && typeof data.image === 'object') {
+      const img = data.image as { fileName?: string; originalName?: string };
+      if (img.fileName && img.fileName.startsWith(`/${UPLOAD_PATH_TEMP}/`)) {
+        img.fileName = moveFile(img.fileName);
+      }
     }
 
     const product = await Product.findByIdAndUpdate(
